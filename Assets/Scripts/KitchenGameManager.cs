@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class KitchenGameManager : MonoBehaviour {
 
@@ -13,6 +14,9 @@ public class KitchenGameManager : MonoBehaviour {
     public event EventHandler OnStateChanged;
     public event EventHandler OnGamePaused;
     public event EventHandler OnGameUnpaused;
+    [SerializeField] private Button pauseBtn;
+    [SerializeField] private Button Taptocontinue;
+    [SerializeField] private GameObject canvasControl;
 
 
     private enum State {
@@ -25,30 +29,31 @@ public class KitchenGameManager : MonoBehaviour {
 
     private State state;
     private float countdownToStartTimer = 3f;
-    private float gamePlayingTimer;
-    private float gamePlayingTimerMax = 30f;
+    public float gamePlayingTimer;
+    private float gamePlayingTimerMax = 100;
     private bool isGamePaused = false;
 
 
     private void Awake() {
         Instance = this;
-
+        canvasControl.SetActive(false); 
         state = State.WaitingToStart;
     }
 
     private void Start() {
-        GameInput.Instance.OnPauseAction += GameInput_OnPauseAction;
-        GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
+        Taptocontinue.onClick.AddListener(GameInput_OnInteractAction);
+        pauseBtn.onClick.AddListener(GameInput_OnPauseAction);
     }
 
-    private void GameInput_OnInteractAction(object sender, EventArgs e) {
+    private void GameInput_OnInteractAction() {
         if (state == State.WaitingToStart) {
+            canvasControl.SetActive(true);
             state = State.CountdownToStart;
             OnStateChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
-    private void GameInput_OnPauseAction(object sender, EventArgs e) {
+    private void GameInput_OnPauseAction() {
         TogglePauseGame();
     }
 
